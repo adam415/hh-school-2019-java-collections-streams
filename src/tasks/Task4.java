@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.stream.Collectors;
+
 /*
 Задача 4
 Список персон класса Person необходимо сконвертировать в список ApiPersonDto
@@ -19,7 +21,11 @@ public class Task4 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<ApiPersonDto> convert(List<Person> persons) {
-    return new ArrayList<>();
+    List<ApiPersonDto> dtos = persons.stream()
+            .map(Task4::convert)
+            .collect(Collectors.toList());
+
+    return dtos;
   }
 
   private static ApiPersonDto convert(Person person) {
