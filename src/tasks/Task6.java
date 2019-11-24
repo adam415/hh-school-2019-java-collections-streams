@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /*
 Имеются
 - коллекция персон Collection<Person>
@@ -19,11 +22,29 @@ import java.util.Set;
 На выходе хочется получить множество строк вида "Имя - регион". Если у персон регионов несколько, таких строк так же будет несколько
  */
 public class Task6 implements Task {
-
   private Set<String> getPersonDescriptions(Collection<Person> persons,
                                             Map<Integer, Set<Integer>> personAreaIds,
                                             Collection<Area> areas) {
-    return new HashSet<>();
+    var personNames = persons.stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Person::getId,
+                    Person::getFirstName
+            ));
+
+    var areaNames = areas.stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Area::getId,
+                    Area::getName
+            ));
+
+    return personAreaIds.entrySet().stream()
+            .flatMap(pers_areas -> pers_areas.getValue().stream()
+                    .map(areaId -> String.format(
+                            "%s - %s",
+                            personNames.get(pers_areas.getKey()),
+                            areaNames.get(areaId))
+                    ))
+            .collect(Collectors.toSet());
   }
 
   @Override
