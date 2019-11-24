@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /*
 Задача 5
 Расширим предыдущую задачу
@@ -20,7 +23,12 @@ public class Task5 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
-    return new ArrayList<>();
+    Function<Person, Integer> getArea = person -> personAreaIds.get(person.getId());
+    Function<Person, ApiPersonDto> personToDto = person -> Task5.convert(person, getArea.apply(person));
+
+    return persons.stream()
+            .map(personToDto)
+            .collect(Collectors.toList());
   }
 
   private static ApiPersonDto convert(Person person, Integer areaId) {
