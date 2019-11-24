@@ -21,6 +21,17 @@ import java.util.Map;
 public class Task1 implements Task {
 
   // !!! Редактируйте этот метод !!!
+  /*
+  n = count of items in personIds; m = count of items in foundPersons
+  m <= n
+
+  m * O(1) -- collecting to Map
+  n * O(1) -- getting from Map
+  n * O(1) -- collecting to List
+
+  mO(1) + nO(1) + nO(1) = O(m + 2n) <= O(3n) = O(n)
+  Thence, the total is O(n)
+   */
   private List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> foundPersons = PersonService.findPersons(personIds);
 
