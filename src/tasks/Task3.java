@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
+
 /*
 Задача 3
 Отсортировать коллекцию сначала по фамилии, затем по имени, а потом по дате создания
@@ -16,7 +19,14 @@ public class Task3 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<Person> sort(Collection<Person> persons) {
-    return new ArrayList<>(persons);
+    List<Person> sortedPersons = persons.stream()
+            .sorted(Comparator
+                    .comparing(Person::getSecondName)
+                    .thenComparing(Person::getFirstName)
+                    .thenComparing(Person::getCreatedAt))
+            .collect(Collectors.toList());
+
+    return sortedPersons;
   }
 
   @Override
