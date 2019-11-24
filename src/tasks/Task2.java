@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import java.util.stream.Stream;
+import java.util.Comparator;
+
 /*
 Задача 2
 На вход принимаются две коллекции объектов Person и величина limit
@@ -22,7 +25,13 @@ public class Task2 implements Task {
   private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                       Collection<Person> persons2,
                                                       int limit) {
-    return new ArrayList<>();
+    List<Person> result =
+            Stream.concat(persons1.stream(), persons2.stream())
+                    .sorted(Comparator.comparing(Person::getCreatedAt))
+                    .limit(limit)
+                    .collect(Collectors.toList());
+
+    return result;
   }
 
   @Override
