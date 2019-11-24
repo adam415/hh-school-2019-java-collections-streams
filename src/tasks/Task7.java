@@ -8,13 +8,27 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /*
 Из коллекции компаний необходимо получить всевозможные различные названия вакансий
  */
 public class Task7 implements Task {
 
   private Set<String> vacancyNames(Collection<Company> companies) {
-    return new HashSet<>();
+    return companies.stream()
+            .flatMap(company -> company.getVacancies().stream())
+            .distinct()
+            .map(Vacancy::getTitle)
+            .collect(Collectors.toSet());
+
+    /* Lambda seems better than:
+    - Function<Company, Collection<Vacancy>> companyToVacancyCollection = Company::getVacancies;
+    - Function<Company, Stream<Vacancy>> companyToVacancyStreams = companyToVacancyCollection.andThen(Collection::stream);
+    Or
+    - ((Function<Company, Collection<Vacancy>>)Company::getVacancies).andThen(Collection::stream)
+    */
   }
 
   @Override
