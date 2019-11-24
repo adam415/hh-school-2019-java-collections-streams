@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /*
 Имеются
 - коллекция персон Collection<Person>
@@ -23,7 +26,27 @@ public class Task6 implements Task {
   private Set<String> getPersonDescriptions(Collection<Person> persons,
                                             Map<Integer, Set<Integer>> personAreaIds,
                                             Collection<Area> areas) {
-    return new HashSet<>();
+    // Делаю без проверок, чтобы выглядело красивее
+    Map<Integer, String> namesMap = persons.stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Person::getId,
+                    Person::getFirstName
+            ));
+
+    Function<Integer, String> getAreaName = areaId -> areas.stream()
+            .filter(area -> area.getId().equals(areaId))
+            .findAny().get().getName();
+
+    return personAreaIds.entrySet().stream()
+            .flatMap(pers_areas -> pers_areas.getValue().stream()
+                    .map(areaId -> Map.entry(
+                            pers_areas.getKey(),
+                            getAreaName.apply(areaId)
+                    )))
+            .map(pers_area -> String.format("%s - %s",
+                    namesMap.get(pers_area.getKey()),
+                    pers_area.getValue()))
+            .collect(Collectors.toSet());
   }
 
   @Override
