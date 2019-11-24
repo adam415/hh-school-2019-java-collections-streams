@@ -25,13 +25,10 @@ public class Task2 implements Task {
   private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                       Collection<Person> persons2,
                                                       int limit) {
-    List<Person> result =
-            Stream.concat(persons1.stream(), persons2.stream())
-                    .sorted(Comparator.comparing(Person::getCreatedAt))
-                    .limit(limit)
-                    .collect(Collectors.toList());
-
-    return result;
+    return Stream.concat(persons1.stream(), persons2.stream())
+            .sorted(Comparator.comparing(Person::getCreatedAt))
+            .limit(limit)
+            .collect(Collectors.toList());
   }
 
   @Override
