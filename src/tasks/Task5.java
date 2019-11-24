@@ -23,8 +23,8 @@ public class Task5 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
-    Function<Person, Integer> getArea = person -> personAreaIds.get(person.getId());
-    Function<Person, ApiPersonDto> personToDto = person -> Task5.convert(person, getArea.apply(person));
+    Function<Person, Integer>       getArea       = person -> personAreaIds.get(person.getId());
+    Function<Person, ApiPersonDto>  personToDto   = person -> Task5.convert(person, getArea.apply(person));
 
     return persons.stream()
             .map(personToDto)
