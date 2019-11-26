@@ -93,7 +93,7 @@ public class Task8 implements Task {
     */
 
     return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
-            .filter(Objects::isNull)
+            .filter(Objects::nonNull)
             .collect(Collectors.joining(" "));
   }
 
@@ -148,8 +148,8 @@ public class Task8 implements Task {
     где k - номер первого попавшегося элемента, общего для обоих сетов (k <= m)
     */
 
-    return new HashSet<>(persons1).stream()
-            .anyMatch(new HashSet<>(persons2)::contains);
+    var persons2Set = new HashSet<>(persons2);
+    return persons1.stream().anyMatch(persons2Set::contains);
   }
 
   //Выглядит вроде неплохо...
