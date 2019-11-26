@@ -37,11 +37,11 @@ public class Task6 implements Task {
                     Area::getName
             ));
 
-    return personAreaIds.entrySet().stream()
-            .flatMap(pers_areas -> pers_areas.getValue().stream()
+    return personAreaIds.keySet().stream()
+            .flatMap(personId -> personAreaIds.get(personId).stream()
                     .map(areaId -> String.format(
                             "%s - %s",
-                            personNames.get(pers_areas.getKey()),
+                            personNames.get(personId),
                             areaNames.get(areaId))
                     ))
             .collect(Collectors.toSet());

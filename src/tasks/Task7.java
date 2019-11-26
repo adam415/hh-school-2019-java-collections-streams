@@ -17,9 +17,9 @@ import java.util.stream.Stream;
 public class Task7 implements Task {
 
   private Set<String> vacancyNames(Collection<Company> companies) {
+    // Убрал distinct по вакансиям и предполагаем, что нет повторов ссылок на компаний.
     return companies.stream()
             .flatMap(company -> company.getVacancies().stream())
-            .distinct()
             .map(Vacancy::getTitle)
             .collect(Collectors.toSet());
 

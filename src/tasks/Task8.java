@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.time.Instant;
 import java.util.Random;
 
@@ -31,16 +30,21 @@ public class Task8 implements Task {
 
   // >>>>> Так будет заметнее мои комменты?)
   // >>>>> the reviewer was definitely drunk, в топку поле - private long count;
-  // >>>>> Везде был пропущен static (и в прошлых тасках, но менял)
+  // >>>>> Вернул non-static
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
-  public static List<String> getNames(List<Person> persons) {
+  public List<String> getNames(List<Person> persons) {
     /* BEFORE:
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
     persons.remove(0);
     return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+    */
+
+    /* >>>>>
+     Изменять переданный лист из вери бэд (not pure)
+     Чтобы пропустить первый элемент есть skip и проверка на пустую коллекцию даже не нужна
     */
 
     return persons.stream()
@@ -50,14 +54,14 @@ public class Task8 implements Task {
   }
 
   //ну и различные имена тоже хочется
-  public static Set<String> getDifferentNames(List<Person> persons) {
-    Set<String> set = new HashSet<>();
-    set.addAll(getNames(persons));
+  public Set<String> getDifferentNames(List<Person> persons) {
+    return new HashSet<>(getNames(persons));
 
-    return set;
-
-    // >>>>> Set сам содержит метод добавления всех элементов из коллекции,
-    // выглядит компактнее и работы меньше (нет создания и обхода лишних стримов, вызовов лямбд)
+    /* >>>>>
+    Дистинкт был лишний, так как коллектор сам уберет повторы.
+    Есть готовый конструктор и не нужны стримы (я так и хотел сначала, но в сигнатурах показалось,
+      что такого не было, так что теперь действительно компактнее).
+    */
 
     /* BEFORE:
     return getNames(persons).stream().distinct().collect(Collectors.toSet());
@@ -66,7 +70,7 @@ public class Task8 implements Task {
 
   //Для фронтов выдадим полное имя, а то сами не могут
   // >>>>> Мне не понравилось название. Dieu et mon droit..
-  public static String getFullName(Person person) {
+  public String getFullName(Person person) {
     /* BEFORE:
     String result = "";
     if (person.getSecondName() != null) {
@@ -83,13 +87,18 @@ public class Task8 implements Task {
     return result;
     */
 
+    /* >>>>>
+     Здесь я использую стримы, дабы не писать одни и те же действия отдельно для каждого элемента
+     Тогда вместо проверки на нуль и объединения строк ручками есть более красиво средство
+    */
+
     return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
             .filter(Objects::isNull)
             .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
-  public static Map<Integer, String> getPersonNames(Collection<Person> persons) {
+  public Map<Integer, String> getPersonNames(Collection<Person> persons) {
     /* BEFORE:
     Map<Integer, String> map = new HashMap<>(1);
     for (Person person : persons) {
@@ -100,15 +109,28 @@ public class Task8 implements Task {
     return map;
     */
 
+    /* >>>>>
+    distinct'ом отсеиваю одинаковые ссылки на Person
+    Если же два разных Person содержат одинаковый id, то второй игнорируется как и в BEFORE,
+      но я добавил на всякий случай сообщение, что у таких-то разных персон одинаковый ид.
+    */
+
     return persons.stream()
+            .distinct()
             .collect(Collectors.toMap(
                     Person::getId,
-                    Task8::getFullName
+                    this::getFullName,
+                    (fullName1, fullName2) -> {
+                      System.err.println(String.format(
+                              "Encountered different person objects with equal ids: '%s' and '%s'",
+                              fullName1, fullName2));
+                      return fullName1;
+                    }
             ));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
-  public static boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
+  public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     /* BEFORE: O(m*n)
     boolean has = false;
     for (Person person1 : persons1) {
@@ -121,30 +143,33 @@ public class Task8 implements Task {
     return has;
     */
 
-    // AFTER: O(m+n)
-    Set<Person> intersection = new HashSet<>();
-    intersection.addAll(persons1);
-    intersection.retainAll(persons2);
+    /* >>>>>
+    AFTER: O(m) + O(n) + k*O(1) = O(m+n)
+    где k - номер первого попавшегося элемента, общего для обоих сетов (k <= m)
+    */
 
-    return !intersection.isEmpty();
+    return new HashSet<>(persons1).stream()
+            .anyMatch(new HashSet<>(persons2)::contains);
   }
 
   //Выглядит вроде неплохо...
   // >>>>> Думаю, не стоит принимать Stream, потому что он может быть уже использован
   // >>>>> Логично создавать стрим там, где его используют.
-  public static long countEven(Collection<Integer> numbers) {
+  public long countEven(Collection<Integer> numbers) {
     /* BEFORE:
     count = 0;
     numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
     return count;
     */
 
-    // >>>>> count, полагаю, не будет особо быстрее forEach, но переменная нам ни к чему
-    // >>>>> и побитовый оператор по идее быстрее остатка от деления.
-    Predicate<Integer> isEvenNumber = num -> (num & 1) == 0;
+    /* >>>>>
+     Вернул %.
+     Переменную count нельзя держать в классе, ввиду проблем с многопоточностью. Должна быть локальная.
+     Поскольку пока никаких действий больше здесь не предвидится, красивее все-таки count, чем ручками.
+    */
 
     return numbers.stream()
-            .filter(isEvenNumber)
+            .filter(num -> num % 2 == 0)
             .count();
   }
 

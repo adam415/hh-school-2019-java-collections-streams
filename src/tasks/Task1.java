@@ -33,6 +33,7 @@ public class Task1 implements Task {
   Thence, the total is O(n)
    */
   private List<Person> findOrderedPersons(List<Integer> personIds) {
+    /* BEFORE:
     Set<Person> foundPersons = PersonService.findPersons(personIds);
 
     Map<Integer, Person> collocatedPersons = foundPersons.stream()
@@ -43,6 +44,16 @@ public class Task1 implements Task {
             .collect(Collectors.toList());
 
     return orderedPersons;
+     */
+
+    return personIds.stream()
+            .map(PersonService.findPersons(personIds).stream()
+                    .collect(Collectors.toUnmodifiableMap(
+                            Person::getId,
+                            Function.identity()
+                    ))
+                    ::get)
+            .collect(Collectors.toList());
   }
 
   @Override
