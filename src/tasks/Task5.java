@@ -26,7 +26,8 @@ public class Task5 implements Task {
     return persons.stream()
             .map(person -> Task5.convert(
                     person,
-                    personAreaIds.get(person.getId())))
+                    personAreaIds.get(person.getId())
+            ))
             .collect(Collectors.toList());
   }
 
