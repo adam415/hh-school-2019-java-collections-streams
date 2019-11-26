@@ -46,13 +46,14 @@ public class Task1 implements Task {
     return orderedPersons;
      */
 
+    Map<Integer, Person> personMap = PersonService.findPersons(personIds).stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Person::getId,
+                    Function.identity()
+            ));
+
     return personIds.stream()
-            .map(PersonService.findPersons(personIds).stream()
-                    .collect(Collectors.toUnmodifiableMap(
-                            Person::getId,
-                            Function.identity()
-                    ))
-                    ::get)
+            .map(personMap::get)
             .collect(Collectors.toList());
   }
 
